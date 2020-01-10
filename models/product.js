@@ -6,7 +6,7 @@ const p = path.join(path.dirname(process.mainModule.filename),
 const getProductsFromFile = cb => {
     fs.readFile(p, (err,fileContent) => {
         if(err){
-            return cb([])
+            return cb([]);
         }
         cb(JSON.parse(fileContent));
     });
@@ -21,6 +21,9 @@ module.exports = class Product {
     }
 
     save(){
+        //temprorarily assining a ID. This will be replaced with
+        //business logic later.
+        this.id = Math.random().toString();
         getProductsFromFile(  products => {
             products.push(this);
             fs.writeFile(p, JSON.stringify(products), err => {
@@ -33,5 +36,14 @@ module.exports = class Product {
     //put placing here just for ease of use
     static fetchAll(cb){
         getProductsFromFile(cb);
+    }
+
+    static findById(id,cb){
+        getProductsFromFile(products => {
+            const product = products.find(product => 
+                product.id === id
+            );
+            cb(product);
+        });
     }
 }
