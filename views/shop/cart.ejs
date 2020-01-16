@@ -3,7 +3,7 @@
 
     <body>
         <%- include('../includes/navigation.ejs') %>
-        <main>
+        <main >
             <% if (products.length > 0) {  %>
                 <ul>
                     <% products.forEach(p => {%>
@@ -16,6 +16,12 @@
                         </li>
                     <%})%>
                 </ul>
+                <hr/>
+                <div class="centered">
+                    <form action="/create-order" method="POST">
+                        <button type="submit" class="btn">Order Now !</button>
+                    </form>
+                </div>
             <% } else {%>    
                 <h1>There are no products to display</h1>
             <% }%>      
