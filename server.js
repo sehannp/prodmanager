@@ -3,7 +3,7 @@ const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const MONGODB_URI = 'mongodb+srv://sehan:9BJoAgWT6dqCmRzT@cluster0-lq2mq.mongodb.net/test?retryWrites=true&w=majority';
+const MONGODB_URI = require('./util/database');
 
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
