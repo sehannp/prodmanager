@@ -21,14 +21,30 @@ exports.getSignup = (req,res,next) => {
 
 
 exports.postLogin = (req,res,next) => {  
-  User.findById("5e2283d3b7906f42948825e6")
+  const {email, password}= req.body;
+  User.findOne({email})
   .then( user => {
-    req.session.isLoggedIn = true;
-    req.session.user = user;
-    req.session.save( (err) => {
-      console.log(err);
-      res.redirect('/');
+    if(!user){
+      //alert user does not exist
+      return res.redirect('/login');
+    }
+    return bcrypt.compare(password,user.password)
+    .then(doMatch => {
+      if(doMatch){
+        req.session.isLoggedIn = true;
+        req.session.user = user;
+        return req.session.save( (err) => {
+          console.log(err);
+          res.redirect('/');
+        });
+      }
+      res.redirect('/login');
     })
+    .catch(err => {
+      console.log(err);
+      res.redirect('/login');
+    })
+
   })
   .catch((err) => console.log(err));  
 };
