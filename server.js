@@ -33,18 +33,13 @@ app.use(session({secret: 'my_secret',
         store: store}));
 
 app.use((req,res,next) => {
-    User.findById("5e2283d3b7906f42948825e6")
+    
+    if(!req.session.user){
+        return next();
+    }
+    User.findById(req.session.user._id)
     .then( user => {
-        req.user = user;
-        
-        // req.isLoggedIn = false;
-        // if (req.get('Cookie')) {
-        //   const cookies = req.get('Cookie').split(';');
-        //   const loggedCookie = cookies.find(cookie => {
-        //     return cookie.split('=')[0] === 'loggedIn';
-        //   });
-        //   req.isLoggedIn = loggedCookie.split('=')[1];
-        // }
+        req.user = user; 
         next();
     })
     .catch(err => console.log(err));
@@ -58,19 +53,6 @@ app.use(errorController.get404);
 
 mongoose.connect(MONGODB_URI,{ useNewUrlParser: true})
 .then(result => {
-    User.findOne()
-    .then( user => {
-        if(!user){
-            const user = new User({
-                name: 'sehan',
-                email: 'sehanp@test.com',
-                cart:{
-                    items: []
-                }
-            });
-            user.save();
-        }
-    });
     app.listen(3000); 
 })
 .catch(err => console.log(err));
