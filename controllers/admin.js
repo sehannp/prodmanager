@@ -1,14 +1,12 @@
-// const mongodb = require('mongodb');
-// const ObjectId = mongodb.ObjectId;
 const Product = require('../models/product');
 
 exports.getAddProduct = (req, res, next) => {
-    res.render('admin/edit-product',{
-      pageTitle: 'Add Product', 
-      path: '/admin/add-product',
-      editing: false,
-      isAuthenticated: req.session.isLoggedIn
-    })  
+  res.render('admin/edit-product',{
+    pageTitle: 'Add Product', 
+    path: '/admin/add-product',
+    editing: false,
+    isAuthenticated: req.session.isLoggedIn
+  })  
 };
 
 exports.getEditProduct = (req, res, next) => {
