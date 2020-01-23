@@ -37,7 +37,7 @@
             <% } else { %>
                 <form action="/logout" method="post">
                     <input type="hidden" name="_csrf" value="<%= csrfToken%>"/>
-                    <button class="<%= path === '/logout' ? 'active' : '' %>" type="submit" >Logout</button>
+                    <button type="submit" >Logout</button>
                 </form>
             <% } %>
         </ul>
@@ -79,7 +79,7 @@
             <li class="mobile-nav__item">
                 <form action="/logout" method="post">
                     <input type="hidden" name="_csrf" value="<%= csrfToken%>"/>
-                    <button class="<%= path === '/logout' ? 'active' : '' %>" type="submit" >Logout</button>
+                    <button type="submit" >Logout</button>
                 </form>
             </li>
             <% } %>
