@@ -28,17 +28,22 @@ exports.getSignup = (req,res,next) => {
 
 exports.postLogin = (req,res,next) => {  
   const {email, password}= req.body;
-  User.findOne({email})
-  .then( user => {
-    if(!user){
-      req.flash('error','invalid email or password')
-      return res.redirect('/login');
-    }
-    return bcrypt.compare(password,user.password)
+  const errors = validationResult(req);
+
+  if(!errors.isEmpty()){
+    return res.status(422).render(
+      'auth/login', {
+        path: '/login',
+        pageTitle: 'Login',
+        errorMessage: errors.array()[0].msg
+      });
+  }
+  const fetchedPassword = req.userval.password
+  bcrypt.compare(password,fetchedPassword)
     .then(doMatch => {
       if(doMatch){
         req.session.isLoggedIn = true;
-        req.session.user = user;
+        req.session.user = req.userval;
         return req.session.save( (err) => {
           console.log(err);
           res.redirect('/');
@@ -50,10 +55,7 @@ exports.postLogin = (req,res,next) => {
     .catch(err => {
       console.log(err);
       res.redirect('/login');
-    })
-
-  })
-  .catch((err) => console.log(err));  
+    }) 
 };
 
 exports.postLogout = (req,res,next) => {

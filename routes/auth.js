@@ -7,7 +7,22 @@ const User = require('../models/user');
 
 
 router.get('/login', authController.getLogin);
-router.post('/login', authController.postLogin);
+router.post('/login',[
+    check('email').isEmail().withMessage('Please Enter Valid Email')
+    .custom((value,{req}) => {
+        return User.findOne({email:value})
+        .then(user => {
+            if(!user){
+                return Promise.reject('This user does not exist');
+            }
+            req.userval = user;
+        })
+    }),
+    body('password','Password should be atleast 5 chars and alphanumeric')
+    .isLength({min: 5})
+    .isAlphanumeric()
+    ],
+    authController.postLogin);
 router.get('/signup', authController.getSignup);
 router.post('/signup', 
     [    
