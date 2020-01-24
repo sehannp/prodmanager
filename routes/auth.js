@@ -17,10 +17,10 @@ router.post('/login',[
             }
             req.userval = user;
         })
-    }),
+    }).normalizeEmail(),
     body('password','Password should be atleast 5 chars and alphanumeric')
     .isLength({min: 5})
-    .isAlphanumeric()
+    .isAlphanumeric().trim()
     ],
     authController.postLogin);
 router.get('/signup', authController.getSignup);
@@ -34,16 +34,16 @@ router.post('/signup',
             return Promise.reject('Email exists already.');
           }
         })
-    }),
+    }).normalizeEmail(),
     body('password','Password should be atleast 5 chars and alphanumeric')
         .isLength({min: 5})
-        .isAlphanumeric(),
+        .isAlphanumeric().trim(),
     body('confirmPassword').custom((value,{req}) => {
         if (value !== req.body.password){
             throw new Error('Passwords have to match');
         }
         return true;
-    })
+    }).trim()
     ]
     ,authController.postSignup);
 router.post('/logout',authController.postLogout);
