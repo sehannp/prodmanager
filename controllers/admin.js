@@ -1,10 +1,14 @@
+const {validationResult} = require('express-validator/check');
 const Product = require('../models/product');
 
 exports.getAddProduct = (req, res, next) => {
   res.render('admin/edit-product',{
     pageTitle: 'Add Product', 
     path: '/admin/add-product',
-    editing: false
+    editing: false,
+    hasError: false,
+    errorMessage: null,
+    validationErrors: []
   })  
 };
 
@@ -24,7 +28,10 @@ exports.getEditProduct = (req, res, next) => {
       pageTitle: 'Edit Product', 
       path: '/admin/edit-product',
       editing: editMode,
-      product: product
+      product: product,
+      hasError: false,
+      errorMessage: null,
+      validationErrors: []
     });
   })
   .catch(err => console.log(err));
@@ -32,6 +39,20 @@ exports.getEditProduct = (req, res, next) => {
 
 exports.postAddProduct = (req, res, next) => {
   const {body: {title, imageUrl, price, description}} = req;
+  const errors = validationResult(req);
+
+  if(!errors.isEmpty()){
+    return res.status(422).render('admin/edit-product',{
+      pageTitle: 'Add Product', 
+      path: '/admin/edit-product',
+      editing: false,
+      product: {title, imageUrl, price, description},
+      hasError: true,
+      errorMessage: errors.array()[0].msg,
+      validationErrors: errors.array()
+    });
+  }
+  
   const product = new Product({title,price,description,imageUrl, userId: req.user._id});
     product.save()
     .then(result => {
@@ -43,7 +64,20 @@ exports.postAddProduct = (req, res, next) => {
 
 exports.postEditProduct = (req,res,next) => {
   const {productId, title, imageUrl, price, description} = req.body;
+  const errors = validationResult(req);
 
+  if(!errors.isEmpty()){
+    // console.log(errors.array());
+    return res.status(422).render('admin/edit-product',{
+      pageTitle: 'Edit Product', 
+      path: '/admin/edit-product',
+      editing: true,
+      product: {_id:productId,title, imageUrl, price, description},
+      hasError: true,
+      errorMessage: errors.array()[0].msg,
+      validationErrors: errors.array()
+    });
+  }
   Product.findById(productId)
   .then(product => {
     if(product.userId.toString() !== req.user._id.toString()){
