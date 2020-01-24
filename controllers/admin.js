@@ -34,7 +34,11 @@ exports.getEditProduct = (req, res, next) => {
       validationErrors: []
     });
   })
-  .catch(err => console.log(err));
+  .catch(err => {
+    const error = new Error(err)
+    error.httpStatus = 500;
+    return next(error);
+  });
 };
 
 exports.postAddProduct = (req, res, next) => {
@@ -44,7 +48,7 @@ exports.postAddProduct = (req, res, next) => {
   if(!errors.isEmpty()){
     return res.status(422).render('admin/edit-product',{
       pageTitle: 'Add Product', 
-      path: '/admin/edit-product',
+      path: '/admin/add-product',
       editing: false,
       product: {title, imageUrl, price, description},
       hasError: true,
@@ -59,7 +63,11 @@ exports.postAddProduct = (req, res, next) => {
       console.log("Record created");
       res.redirect('/admin/products');
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+      const error = new Error(err)
+      error.httpStatus = 500;
+      return next(error);
+    });
 };
 
 exports.postEditProduct = (req,res,next) => {
@@ -87,7 +95,6 @@ exports.postEditProduct = (req,res,next) => {
     product.imageUrl = imageUrl;
     product.price = price;
     product.description = description;
-
     return product.save()
     .then(result => { 
       console.log("updated");
@@ -95,7 +102,11 @@ exports.postEditProduct = (req,res,next) => {
     })
   })
   //const product = new Product(title,price,description,imageUrl,productId)
-  .catch(err => console.log(err));
+  .catch(err => {
+    const error = new Error(err)
+    error.httpStatus = 500;
+    return next(error);
+  });
   
 };
 
@@ -109,7 +120,11 @@ exports.getProducts = (req, res, next) => {
       pageTitle: 'Admin Products'
     }) 
   })
-  .catch(err => console.log(err));
+  .catch(err => {
+    const error = new Error(err)
+    error.httpStatus = 500;
+    return next(error);
+  });
 };
 
 exports.postDeleteProduct = (req,res,next) => {
@@ -121,5 +136,9 @@ exports.postDeleteProduct = (req,res,next) => {
     console.log("deleted product");
     res.redirect('/admin/products');
   })
-  .catch(err => console.log(err));
+  .catch(err => {
+    const error = new Error(err)
+    error.httpStatus = 500;
+    return next(error);
+  });
 };
