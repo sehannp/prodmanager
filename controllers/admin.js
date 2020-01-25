@@ -1,5 +1,6 @@
 const {validationResult} = require('express-validator/check');
 const Product = require('../models/product');
+const fileHelper = require('../util/file');
 
 exports.getAddProduct = (req, res, next) => {
   res.render('admin/edit-product',{
@@ -109,6 +110,7 @@ exports.postEditProduct = (req,res,next) => {
     product.title = title;
     //if no file is uploaded keep the old file itself
     if(image) {
+      fileHelper.deleteFile(product.imageUrl);
       product.imageUrl = image.path;
     }
     product.price = price;
@@ -147,13 +149,21 @@ exports.getProducts = (req, res, next) => {
 exports.postDeleteProduct = (req,res,next) => {
   const productId = req.body.productId;
 
-  // Product.findByIdAndDelete(productId)
-  Product.deleteOne({_id:productId, userId: req.user._id})
+  Product.findById(productId)
+  .then(product => {
+    console.log(product.imageUrl);
+    if(!product){
+      return next(new Error('Product not found'));
+    }
+    fileHelper.deleteFile(product.imageUrl);
+    return Product.deleteOne({_id:productId, userId: req.user._id});
+  })
   .then(() => {
     console.log("deleted product");
     res.redirect('/admin/products');
   })
   .catch(err => {
+    console.log(err);
     const error = new Error(err)
     error.httpStatus = 500;
     return next(error);
