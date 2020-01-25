@@ -11,13 +11,11 @@ router.get('/products',isAuth, adminController.getProducts);
 
 router.post('/add-product',[
     body('title').isString().isLength({min:3}).trim(),
-    body('imageUrl').trim().isURL(),
     body('price').isFloat(),
     body('description').trim().isLength({min:8, max:400})
 ],isAuth,  adminController.postAddProduct);
 router.post('/edit-product',[
     body('title').isString().isLength({min:3}).trim(),
-    body('imageUrl').trim().isURL(),
     body('price').isFloat(),
     body('description').trim().isLength({min:8, max:400})
 ],isAuth, adminController.postEditProduct);

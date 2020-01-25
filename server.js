@@ -2,6 +2,7 @@ const path = require('path');
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const multer = require('multer');
 const mongoose = require('mongoose');
 const MONGODB_URI = require('./util/database');
 
@@ -18,6 +19,18 @@ const store = new MongoDBStore({
     uri: MONGODB_URI,
     collection:'sessions'
 });
+const fileStorage = multer.diskStorage({
+    destination: (req,file,cb) => {
+            cb(null,'images')
+        },
+    filename: (req,file,cb)=> {
+            cb(null,new Date().getTime()+ '-' + file.originalname);
+        }
+});
+const fileFilter = (req,file,cb) => {
+    (file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg') ?
+    cb(null,true) : cb(null,false);
+}
 const csrfProtection = csrf();
 
 const adminRoutes = require('./routes/admin');
@@ -29,6 +42,7 @@ const errorController = require('./controllers/error');
 const User = require('./models/user');
 
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(multer({storage: fileStorage, fileFilter: fileFilter}).single('image'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({secret: 'my_secret', 
         resave: false, 

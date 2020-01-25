@@ -42,22 +42,35 @@ exports.getEditProduct = (req, res, next) => {
 };
 
 exports.postAddProduct = (req, res, next) => {
-  const {body: {title, imageUrl, price, description}} = req;
+  const {body: {title, price, description}} = req;
+  const image = req.file;
   const errors = validationResult(req);
+
+  if(!image){
+    return res.status(422).render('admin/edit-product',{
+      pageTitle: 'Add Product', 
+      path: '/admin/add-product',
+      editing: false,
+      product: {title, price, description},
+      hasError: true,
+      errorMessage: 'Attached file is not an image',
+      validationErrors: []
+    });
+  }
 
   if(!errors.isEmpty()){
     return res.status(422).render('admin/edit-product',{
       pageTitle: 'Add Product', 
       path: '/admin/add-product',
       editing: false,
-      product: {title, imageUrl, price, description},
+      product: {title, price, description},
       hasError: true,
       errorMessage: errors.array()[0].msg,
       validationErrors: errors.array()
     });
   }
-  
-  const product = new Product({title,price,description,imageUrl, userId: req.user._id});
+
+  const product = new Product({title,price,description,imageUrl: image.path, userId: req.user._id});
     product.save()
     .then(result => {
       console.log("Record created");
@@ -71,16 +84,18 @@ exports.postAddProduct = (req, res, next) => {
 };
 
 exports.postEditProduct = (req,res,next) => {
-  const {productId, title, imageUrl, price, description} = req.body;
+  const {productId, title, price, description} = req.body;
+  const image = req.file;
   const errors = validationResult(req);
 
+ 
+
   if(!errors.isEmpty()){
-    // console.log(errors.array());
     return res.status(422).render('admin/edit-product',{
       pageTitle: 'Edit Product', 
       path: '/admin/edit-product',
       editing: true,
-      product: {_id:productId,title, imageUrl, price, description},
+      product: {_id:productId,title, price, description},
       hasError: true,
       errorMessage: errors.array()[0].msg,
       validationErrors: errors.array()
@@ -92,7 +107,10 @@ exports.postEditProduct = (req,res,next) => {
       return res.redirect('/');
     }
     product.title = title;
-    product.imageUrl = imageUrl;
+    //if no file is uploaded keep the old file itself
+    if(image) {
+      product.imageUrl = image.path;
+    }
     product.price = price;
     product.description = description;
     return product.save()
@@ -101,8 +119,7 @@ exports.postEditProduct = (req,res,next) => {
       res.redirect('/admin/products');
     })
   })
-  //const product = new Product(title,price,description,imageUrl,productId)
-  .catch(err => {
+ .catch(err => {
     const error = new Error(err)
     error.httpStatus = 500;
     return next(error);
